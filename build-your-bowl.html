@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Bowl — Simply Fruits | Jenkintown & Yardley, PA</title>
+<meta name="description" content="Build your own bowl at Simply Fruits. Pick an açaí, pitaya, kale or coconut base, add toppings and extras, and order at Jenkintown or Yardley.">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* =========================================================
+     Build Your Bowl — page styles.
+     Everything here is prefixed .byb- and uses the colour and
+     font variables from style.css, so palette changes there
+     carry through to this page.
+     ========================================================= */
+
+  .byb-sr {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Hero ---------- */
+  .byb-hero { padding: 56px 0 44px; }
+  .byb-hero .wrap { grid-template-columns: 1fr; }
+  .byb-hero p.lede { margin-bottom: 0; }
+
+  /* ---------- Builder shell ---------- */
+  .byb { padding: 0 0 56px; }
+
+  /* Stage: the live bowl. Sticks under the header while you pick. */
+  .byb-stage {
+    position: sticky;
+    top: 78px;
+    z-index: 20;
+    margin: 0 -28px;
+    padding: 12px 28px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--line);
+  }
+  .byb-stage-card {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px 10px 10px;
+    border-radius: 8px;
+    color: var(--cream);
+    background:
+      radial-gradient(circle at 12% 20%, rgba(242, 169, 59, 0.38) 0%, rgba(242, 169, 59, 0) 46%),
+      radial-gradient(circle at 92% 88%, rgba(193, 68, 126, 0.42) 0%, rgba(193, 68, 126, 0) 50%),
+      var(--green-900);
+  }
+  .byb-bowl { display: block; width: 92px; height: 92px; }
+  .byb-surface { transition: fill 0.45s ease; }
+
+  .byb-stage-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin: 0 0 4px;
+  }
+  .byb-stage-name {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.3rem;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+  }
+  .byb-stage-count {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    color: rgba(246, 247, 241, 0.75);
+    margin: 0;
+  }
+  .byb-stage-total { margin: 0; text-align: right; }
+  .byb-stage-total span {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(246, 247, 241, 0.75);
+    margin-bottom: 2px;
+  }
+  .byb-stage-total strong {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+  .byb-jump { display: none; }
+
+  /* Narrow phones: tighten the stage so the name and total keep their room */
+  @media (max-width: 379px) {
+    .byb-stage-card { grid-template-columns: 68px minmax(0, 1fr) auto; gap: 10px; padding: 10px 12px 10px 8px; }
+    .byb-bowl { width: 68px; height: 68px; }
+    .byb-stage-label { display: none; }
+    .byb-stage-name { font-size: 1.1rem; }
+    .byb-stage-count { font-size: 0.62rem; letter-spacing: 0; }
+    .byb-stage-total strong { font-size: 1.1rem; }
+  }
+
+  /* Landscape phones: not enough height for a sticky stage */
+  @media (max-height: 520px) {
+    .byb-stage { position: static; }
+  }
+
+  /* ---------- Steps ---------- */
+  .byb-steps { padding-top: 36px; }
+  .byb-steps .menu-placeholder-note { margin-bottom: 28px; }
+
+  .byb-step {
+    border: 0;
+    padding: 0;
+    margin: 0 0 48px;
+    min-width: 0;
+  }
+  .byb-step:last-child { margin-bottom: 0; }
+  .byb-step legend {
+    padding: 0;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 4vw, 1.9rem);
+    letter-spacing: -0.01em;
+    color: var(--green-950);
+  }
+  .byb-num {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    margin-right: 12px;
+    vertical-align: middle;
+  }
+  .byb-hint {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green-700);
+    margin: 8px 0 18px;
+  }
+
+  .byb-options { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
+  .byb-options--bases { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* One option = a label wrapping a real radio/checkbox.
+     The input covers the whole card, so native keyboard and
+     screen-reader behaviour comes for free. */
+  .byb-opt { position: relative; display: block; cursor: pointer; }
+  .byb-opt input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    scroll-margin-top: 250px;   /* keeps the focused option clear of the sticky header + stage */
+    scroll-margin-bottom: 32px;
+  }
+  .byb-opt-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    height: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--cream);
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .byb-opt:hover .byb-opt-body { border-color: var(--green-700); }
+  .byb-opt input:focus-visible + .byb-opt-body {
+    outline: 2px solid var(--orange-dark);
+    outline-offset: 3px;
+  }
+  .byb-opt input:checked + .byb-opt-body {
+    border-color: var(--green-900);
+    background: var(--cream-dim);
+    box-shadow: inset 0 0 0 1px var(--green-900);
+  }
+
+  .byb-opt-name {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.04rem;
+    line-height: 1.2;
+    color: var(--green-950);
+  }
+  .byb-opt-desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--green-700);
+  }
+  .byb-opt-price {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--green-700);
+    white-space: nowrap;
+  }
+
+  /* Tick mark: a box for "pick many", a round one for "pick one" */
+  .byb-tick {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--green-700);
+    border-radius: 4px;
+    background: var(--cream);
+    position: relative;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .byb-opt--base .byb-tick { border-radius: 50%; }
+  .byb-tick::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid var(--cream);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.18s ease;
+  }
+  .byb-opt input:checked + .byb-opt-body .byb-tick {
+    background: var(--green-900);
+    border-color: var(--green-900);
+  }
+  .byb-opt input:checked + .byb-opt-body .byb-tick::after { transform: rotate(45deg) scale(1); }
+
+  /* Base cards: stacked */
+  .byb-opt--base .byb-opt-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 14px;
+  }
+  .byb-opt--base .byb-tick { position: absolute; top: 12px; right: 12px; }
+  .byb-swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid var(--cream);
+    box-shadow: 0 0 0 1px var(--line);
+    margin-bottom: 4px;
+  }
+  .byb-opt--base .byb-opt-name { font-size: 1.2rem; font-weight: 600; }
+  .byb-opt--base .byb-opt-price { margin-top: auto; padding-top: 4px; }
+
+  /* Topping / extra chips: one row */
+  .byb-icon {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--green-900);
+    display: grid;
+    place-items: center;
+  }
+  .byb-icon svg { width: 26px; height: 26px; display: block; }
+  .byb-opt--chip .byb-opt-name { flex: 1; min-width: 0; }
+
+  /* ---------- Order ticket ---------- */
+  .byb-order {
+    background: var(--green-950);
+    padding: 64px 0;
+    border-bottom: none;
+    scroll-margin-top: 78px;
+  }
+  .byb-ticket {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 28px 22px 26px;
+    background: var(--cream);
+    border-radius: 8px;
+  }
+  .byb-ticket .eyebrow { margin-bottom: 12px; }
+  .byb-ticket h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--green-950);
+    margin: 0 0 26px;
+  }
+  .byb-ticket .menu-group-title { margin: 22px 0 4px; }
+  .byb-ticket .menu-group-title:first-child { margin-top: 0; }
+  .byb-ticket ul { list-style: none; margin: 0; padding: 0; }
+  .byb-ticket .menu-row { padding: 10px 0; }
+  .byb-ticket .menu-row .price { color: var(--green-950); }
+  .byb-empty {
+    font-size: 0.9rem;
+    color: var(--green-700);
+    margin: 14px 0 0;
+  }
+  .byb-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 2px solid var(--green-900);
+  }
+  .byb-total-row span:first-child {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green-900);
+  }
+  .byb-total-row span:last-child {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: var(--green-950);
+  }
+  .byb-order-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 26px;
+  }
+  .byb-order-actions .btn-primary { text-align: center; padding: 16px 18px; }
+  .byb-order-note {
+    font-size: 0.84rem;
+    line-height: 1.55;
+    color: var(--green-700);
+    margin: 16px 0 0;
+  }
+  .byb-reset {
+    margin-top: 18px;
+    padding: 6px 0;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--green-900);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green-900);
+    cursor: pointer;
+  }
+  .byb-reset:hover { color: var(--pink); border-color: var(--pink); }
+
+  /* ---------- Bowl motion ---------- */
+  .byb-pop { transform-box: fill-box; transform-origin: center; }
+  .byb-item.is-new .byb-pop {
+    animation: byb-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: calc(var(--i, 0) * 12ms);
+  }
+  @keyframes byb-pop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .byb-item.is-new .byb-line {
+    stroke-dasharray: 1;
+    animation: byb-draw 0.8s ease-out both;
+  }
+  @keyframes byb-draw {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  /* ---------- Scroll reveal (same pattern as index.html) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-scale.is-visible { opacity: 1; transform: scale(1); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal-scale {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+    .byb-surface, .byb-tick, .byb-tick::after, .byb-opt-body { transition: none !important; }
+    .byb-item.is-new .byb-pop, .byb-item.is-new .byb-line { animation: none !important; }
+  }
+
+  /* ---------- Wider phones / tablets ---------- */
+  @media (min-width: 520px) {
+    .byb-options--chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .byb-ticket { padding: 36px 36px 32px; }
+    .byb-order-actions { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ---------- Desktop: steps left, bowl pinned right ---------- */
+  @media (min-width: 900px) {
+    .byb-hero { padding: 80px 0 56px; }
+    .byb { padding: 64px 0 88px; }
+    .byb-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+      gap: 56px;
+      align-items: start;
+    }
+    .byb-steps { grid-column: 1; grid-row: 1; padding-top: 0; }
+    .byb-stage {
+      grid-column: 2;
+      grid-row: 1;
+      top: 102px;
+      margin: 0;
+      padding: 0;
+      background: none;
+      border-bottom: 0;
+    }
+    .byb-stage-card {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      padding: 26px 26px 24px;
+      text-align: center;
+    }
+    .byb-bowl {
+      width: 100%;
+      max-width: min(300px, 40vh);
+      height: auto;
+      margin: 0 auto 18px;
+    }
+    .byb-stage-label { margin-bottom: 8px; }
+    .byb-stage-name { font-size: 1.9rem; margin-bottom: 8px; }
+    .byb-stage-count { font-size: 0.72rem; }
+    .byb-stage-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(246, 247, 241, 0.25);
+      text-align: left;
+    }
+    .byb-stage-total span { margin: 0; font-size: 0.72rem; }
+    .byb-stage-total strong { font-size: 1.6rem; }
+    .byb-jump {
+      display: block;
+      margin-top: 18px;
+      padding: 13px 18px;
+      border: 1px solid var(--cream);
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--cream);
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .byb-jump:hover { background: var(--cream); color: var(--green-950); }
+    .byb-step { margin-bottom: 60px; }
+    .byb-order { padding: 88px 0; }
+  }
+
+  @media (min-width: 900px) and (max-height: 620px) {
+    .byb-stage { position: static; }
+  }
+
+  @media (min-width: 1100px) {
+    .byb-options--bases { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="wrap">
+    <a href="index.html" class="logo">Simply Fruits</a>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="our-story.html">Our Story</a>
+      <a href="menu.html">Menu</a>
+      <a href="build-your-bowl.html" class="active" aria-current="page">Build a Bowl</a>
+      <a href="locations.html">Locations</a>
+      <a href="locations.html" class="btn-order">Order Now</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false">Menu</button>
+  </div>
+</header>
+
+<main>
+
+<section class="hero byb-hero">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">Build your bowl</span>
+      <h1>Your bowl,<br><em>your way.</em></h1>
+      <p class="lede">Pick a base, pile on the toppings and watch it come together. Then order it at either shop.</p>
+    </div>
+  </div>
+</section>
+
+<section class="byb" aria-label="Bowl builder">
+  <div class="wrap">
+    <div class="byb-layout">
+
+      <!-- Live bowl -->
+      <div class="byb-stage">
+        <div class="byb-stage-card">
+          <svg class="byb-bowl" id="bybBowl" viewBox="0 0 340 340" role="img" aria-label="Your bowl">
+            <defs>
+              <radialGradient id="bybShadow">
+                <stop offset="72%" stop-color="#000" stop-opacity="0.34"/>
+                <stop offset="100%" stop-color="#000" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="bybShade">
+                <stop offset="76%" stop-color="#000" stop-opacity="0"/>
+                <stop offset="100%" stop-color="#000" stop-opacity="0.22"/>
+              </radialGradient>
+              <clipPath id="bybClip"><circle cx="170" cy="170" r="124"/></clipPath>
+              <filter id="bybSoft" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="1" stdDeviation="0.9" flood-color="#000" flood-opacity="0.28"/>
+              </filter>
+            </defs>
+            <circle cx="170" cy="178" r="160" fill="url(#bybShadow)"/>
+            <circle cx="170" cy="170" r="150" fill="#f6f7f1"/>
+            <circle cx="170" cy="170" r="149" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.8"/>
+            <circle cx="170" cy="170" r="135" fill="#d9d4c3"/>
+            <circle class="byb-surface" id="bybSurface" cx="170" cy="170" r="124" fill="#4b2253"/>
+            <g clip-path="url(#bybClip)">
+              <g id="bybSpeckle" transform="translate(170 170)"></g>
+              <g transform="translate(170 170)" fill="none" stroke="#ffffff" stroke-linecap="round" opacity="0.1">
+                <path d="M-86 -22 C-76 -84 36 -100 80 -40 C108 2 70 82 -2 76 C-58 70 -70 8 -28 -18 C4 -36 40 -10 26 20" stroke-width="11"/>
+              </g>
+              <circle cx="170" cy="170" r="124" fill="url(#bybShade)"/>
+              <g id="bybToppings" transform="translate(170 170)" filter="url(#bybSoft)"></g>
+              <g id="bybDrizzle" transform="translate(170 170)"></g>
+            </g>
+          </svg>
+          <div class="byb-stage-meta">
+            <p class="byb-stage-label">Your bowl</p>
+            <p class="byb-stage-name" id="bybName">Bowl</p>
+            <p class="byb-stage-count" id="bybCount">No toppings yet</p>
+          </div>
+          <div class="byb-stage-side">
+            <p class="byb-stage-total"><span>Total</span><strong id="bybTotalTop">$0.00</strong></p>
+            <a class="byb-jump" href="#order">Review &amp; order</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Steps (options are filled in from the MENU object in the script below) -->
+      <form class="byb-steps" id="bybForm" novalidate>
+        <noscript><p class="menu-placeholder-note">The bowl builder needs JavaScript. You can still see everything we make on the <a href="menu.html">menu</a>.</p></noscript>
+
+        <fieldset class="byb-step reveal">
+          <legend><span class="byb-num">01</span>Pick your base</legend>
+          <p class="byb-hint">Choose one</p>
+          <div class="byb-options byb-options--bases" id="bybBases"></div>
+        </fieldset>
+
+        <fieldset class="byb-step reveal">
+          <legend><span class="byb-num">02</span>Add toppings</legend>
+          <p class="byb-hint">As many as you like</p>
+          <div class="byb-options byb-options--chips" id="bybToppingsList"></div>
+        </fieldset>
+
+        <fieldset class="byb-step reveal">
+          <legend><span class="byb-num">03</span>Finish with extras</legend>
+          <p class="byb-hint">Drizzles and boosts</p>
+          <div class="byb-options byb-options--chips" id="bybExtrasList"></div>
+        </fieldset>
+      </form>
+
+    </div>
+  </div>
+</section>
+
+<section class="byb-order" id="order" aria-labelledby="bybOrderTitle">
+  <div class="wrap">
+    <div class="byb-ticket reveal">
+      <span class="eyebrow">Your order</span>
+      <h2 id="bybOrderTitle">Here's your bowl.</h2>
+      <div id="bybLines"></div>
+      <p class="byb-total-row"><span>Total</span><span id="bybTotal">$0.00</span></p>
+      <div class="byb-order-actions">
+        <a class="btn-primary" href="https://www.toasttab.com/simply-fruit-jenkintown/v3" target="_blank" rel="noopener">Order at Jenkintown</a>
+        <a class="btn-primary" href="https://simplyfruits-yardley.square.site/" target="_blank" rel="noopener">Order at Yardley</a>
+      </div>
+      <p class="byb-order-note">Ordering opens that shop's page in a new tab, where you'll add this bowl to your order. Your build stays here so you can check it as you go.</p>
+      <button type="button" class="byb-reset" id="bybReset">Start over</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<p class="byb-sr" id="bybLive" aria-live="polite"></p>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <a href="index.html" class="logo">Simply Fruits</a>
+    <div class="foot-links">
+      <a href="index.html">Home</a>
+      <a href="our-story.html">Our Story</a>
+      <a href="menu.html">Menu</a>
+      <a href="locations.html">Locations</a>
+    </div>
+    <div class="foot-social">
+      <a href="https://www.instagram.com/simplyfruits/">Instagram</a>
+    </div>
+  </div>
+  <p class="foot-bottom">© Simply Fruits</p>
+</footer>
+
+<script src="script.js"></script>
+<script>
+/* =====================================================================
+   MENU — every item and price on this page lives in this one object.
+   Edit it freely; nothing below it needs to change.
+
+   - "placeholder": true shows a "placeholder prices" note on the page.
+     Set it to false once the real items and prices are in.
+   - "bases": the customer picks exactly one. The first one is selected
+     when the page loads.
+       "color"   = the bowl's fill colour
+       "speckle" = small flecks in the base (optional)
+   - "toppings" and "extras": the customer picks any number.
+       "price"   = added to the total (use 0 for "Included")
+       "art"     = how it's drawn in the bowl. One of:
+                   slice, strawberry, berry, cube, kiwi, cluster, almond   (pieces arranged in a section)
+                   flake, seed, nib, dust                                  (sprinkled over the whole bowl)
+                   drizzle                                                 (a zigzag line on top)
+                   none                                                    (priced, but not drawn)
+       "color"   = overrides the art's default colour (optional)
+   - Every "id" must be unique. Keep this valid JSON: double quotes,
+     commas between items, no comma after the last one.
+   ===================================================================== */
+const MENU = {
+  "currency": "$",
+  "placeholder": true,
+
+  "bases": [
+    { "id": "acai",    "name": "Açaí",    "desc": "Açaí berry blended with banana",    "price": 9.50, "color": "#4b2253", "speckle": "#2c1233" },
+    { "id": "pitaya",  "name": "Pitaya",  "desc": "Pink dragon fruit and pineapple",   "price": 9.75, "color": "#cf2f7c", "speckle": "#3a0f25" },
+    { "id": "kale",    "name": "Kale",    "desc": "Kale, spinach, pineapple, banana",  "price": 9.75, "color": "#5f9440", "speckle": "#3c6a25" },
+    { "id": "coconut", "name": "Coconut", "desc": "Creamy coconut, dairy-free",        "price": 9.50, "color": "#f1ead9", "speckle": "#d3c7ab" }
+  ],
+
+  "toppings": [
+    { "id": "banana",     "name": "Banana",         "price": 0.75, "art": "slice" },
+    { "id": "strawberry", "name": "Strawberry",     "price": 0.75, "art": "strawberry" },
+    { "id": "blueberry",  "name": "Blueberry",      "price": 0.75, "art": "berry" },
+    { "id": "mango",      "name": "Mango",          "price": 1.00, "art": "cube", "color": "#f5a623" },
+    { "id": "pineapple",  "name": "Pineapple",      "price": 1.00, "art": "cube", "color": "#f3d44b" },
+    { "id": "kiwi",       "name": "Kiwi",           "price": 1.00, "art": "kiwi" },
+    { "id": "granola",    "name": "Granola",        "price": 0.50, "art": "cluster" },
+    { "id": "almonds",    "name": "Sliced almonds", "price": 0.75, "art": "almond" },
+    { "id": "coconut-fl", "name": "Coconut flakes", "price": 0.50, "art": "flake" },
+    { "id": "chia",       "name": "Chia seeds",     "price": 0.50, "art": "seed" },
+    { "id": "cacao",      "name": "Cacao nibs",     "price": 0.75, "art": "nib" }
+  ],
+
+  "extras": [
+    { "id": "honey",    "name": "Honey drizzle",    "price": 0.75, "art": "drizzle", "color": "#e8a72e" },
+    { "id": "pb",       "name": "Peanut butter",    "price": 1.00, "art": "drizzle", "color": "#c48f4f" },
+    { "id": "hazelnut", "name": "Hazelnut cocoa",   "price": 1.00, "art": "drizzle", "color": "#5c3421" },
+    { "id": "almondb",  "name": "Almond butter",    "price": 1.25, "art": "drizzle", "color": "#a06a3a" },
+    { "id": "protein",  "name": "Protein boost",    "price": 1.50, "art": "dust" }
+  ]
+};
+
+/* =====================================================================
+   Builder logic — no need to edit below this line to change the menu.
+   ===================================================================== */
+(function () {
+  'use strict';
+
+  const form = document.getElementById('bybForm');
+  if (!form || !MENU || !Array.isArray(MENU.bases) || !MENU.bases.length) return;
+
+  const TOPPINGS = Array.isArray(MENU.toppings) ? MENU.toppings : [];
+  const EXTRAS = Array.isArray(MENU.extras) ? MENU.extras : [];
+  const S = 124;               // radius of the bowl's surface, in SVG units
+  const TAU = Math.PI * 2;
+
+  const $ = (id) => document.getElementById(id);
+  const surface = $('bybSurface');
+  const speckleLayer = $('bybSpeckle');
+  const toppingLayer = $('bybToppings');
+  const drizzleLayer = $('bybDrizzle');
+  const bowl = $('bybBowl');
+  const live = $('bybLive');
+
+  const state = { base: MENU.bases[0].id, toppings: new Set(), extras: new Set() };
+
+  /* ---------- helpers ---------- */
+  const money = (cents) => (MENU.currency || '$') + (cents / 100).toFixed(2);
+  const cents = (item) => Math.round((Number(item.price) || 0) * 100);
+  const baseItem = () => MENU.bases.find((b) => b.id === state.base) || MENU.bases[0];
+  const picked = (list, set) => list.filter((item) => set.has(item.id));
+  const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
+  const listJoin = (names) =>
+    names.length < 2 ? names.join('') : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  // Deterministic "random" so the bowl looks the same every time it redraws
+  function hash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+    return h >>> 0;
+  }
+  function rng(seed) {
+    return function () {
+      seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ---------- how each "art" is drawn (one piece, centred on 0,0) ---------- */
+  const kiwiSeeds = Array.from({ length: 9 }, (_, i) => {
+    const a = (i / 9) * TAU;
+    return '<circle cx="' + (Math.cos(a) * 6.4).toFixed(1) + '" cy="' + (Math.sin(a) * 6.4).toFixed(1) + '" r="0.8" fill="#2a2a1c"/>';
+  }).join('');
+
+  const ART = {
+    slice: { layout: 'ring', size: 25, color: '#f4dc8c', draw: (c) =>
+      '<circle r="11" fill="' + c + '" stroke="#dcbb58" stroke-width="1.2"/><circle r="5.6" fill="#fbf0c0" opacity="0.75"/>' +
+      '<circle cx="-1.7" cy="-1" r="0.9" fill="#8a6a2f"/><circle cx="1.7" cy="-0.7" r="0.9" fill="#8a6a2f"/><circle cy="1.8" r="0.9" fill="#8a6a2f"/>' },
+    strawberry: { layout: 'ring', size: 23, color: '#d93a4c', spin: 'out', draw: (c) =>
+      '<path d="M0 -10C6 -11 10.5 -6 9.5 0C8.5 6 3 10 0 11C-3 10 -8.5 6 -9.5 0C-10.5 -6 -6 -11 0 -10Z" fill="' + c + '"/>' +
+      '<path d="M0 -5.2C3 -5.7 5.2 -3 4.7 0C4.2 3 1.5 5.2 0 5.7C-1.5 5.2 -4.2 3 -4.7 0C-5.2 -3 -3 -5.7 0 -5.2Z" fill="#f6a5a8"/>' +
+      '<path d="M0 -2.6V3" stroke="#fde6e2" stroke-width="1.2" stroke-linecap="round"/>' },
+    berry: { layout: 'ring', size: 15, color: '#3f4f9a', draw: (c) =>
+      '<circle r="6.6" fill="' + c + '" stroke="#7384cf" stroke-width="0.7"/><circle r="2.1" fill="#232c5c"/><circle cx="-2.4" cy="-2.6" r="1.5" fill="#ffffff" opacity="0.4"/>' },
+    cube: { layout: 'ring', size: 17, color: '#f5a623', draw: (c) =>
+      '<rect x="-7" y="-7" width="14" height="14" rx="3" fill="' + c + '"/><rect x="-7" y="-7" width="14" height="6" rx="3" fill="#ffffff" opacity="0.24"/>' },
+    kiwi: { layout: 'ring', size: 25, color: '#93c24e', draw: (c) =>
+      '<circle r="11" fill="#7a5a34"/><circle r="9.8" fill="' + c + '"/><circle r="3.6" fill="#f2f0d2"/>' + kiwiSeeds },
+    cluster: { layout: 'ring', size: 14, color: '#c8974f', draw: (c) =>
+      '<circle cx="-2.6" cy="1" r="3.7" fill="' + c + '"/><circle cx="2.4" cy="-1.6" r="3.2" fill="#ad7a38"/><circle cx="1.6" cy="2.7" r="2.6" fill="#deb775"/>' },
+    almond: { layout: 'ring', size: 19, color: '#b9773c', draw: (c) =>
+      '<ellipse rx="8.2" ry="4.4" fill="' + c + '"/><path d="M-5.5 0h11" stroke="#ecd0a8" stroke-width="1" stroke-linecap="round" opacity="0.85"/>' },
+    dot: { layout: 'ring', size: 17, color: '#f2a93b', draw: (c) =>
+      '<circle r="7" fill="' + c + '"/><circle cx="-2.2" cy="-2.4" r="1.8" fill="#ffffff" opacity="0.3"/>' },
+
+    flake: { layout: 'scatter', count: 34, color: '#fbfaf2', draw: (c) =>
+      '<rect x="-4.6" y="-1.5" width="9.2" height="3" rx="1.5" fill="' + c + '" stroke="#cfc8b1" stroke-width="0.5"/>' },
+    seed: { layout: 'scatter', count: 80, color: '#8f887b', draw: (c) =>
+      '<circle r="1.3" fill="' + c + '" stroke="#3a372f" stroke-width="0.4"/>' },
+    nib: { layout: 'scatter', count: 38, color: '#6b3f25', draw: (c) =>
+      '<rect x="-2.3" y="-1.6" width="4.6" height="3.2" rx="0.8" fill="' + c + '" stroke="#b07a52" stroke-width="0.5"/>' },
+    dust: { layout: 'scatter', count: 110, color: '#f6ecd4', draw: (c) =>
+      '<circle r="0.95" fill="' + c + '" stroke="#b7a983" stroke-width="0.25"/>' },
+
+    drizzle: { layout: 'drizzle', color: '#e8a72e' },
+    none: { layout: 'none' }
+  };
+  const artFor = (item) => ART[item.art] || ART.dot;
+  const colorFor = (item) => item.color || artFor(item).color;
+
+  /* ---------- drawing the bowl ---------- */
+  function piece(x, y, rot, i, inner) {
+    return '<g transform="translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + rot.toFixed(0) + ')">' +
+      '<g class="byb-pop" style="--i:' + Math.min(i, 32) + '">' + inner + '</g></g>';
+  }
+  const group = (item, isNew, inner) =>
+    '<g class="byb-item' + (isNew ? ' is-new' : '') + '" data-id="' + item.id + '">' + inner + '</g>';
+
+  // Pieces laid out on rings inside the wedge a0..a1 (radians). The centre is left open so the base shows.
+  function ringMarkup(item, a0, a1, isNew) {
+    const art = artFor(item), color = colorFor(item), rand = rng(hash(item.id));
+    const spacing = art.size * 1.06, span = a1 - a0;
+    let out = '', i = 0;
+    for (let r = S - art.size / 2 - 6; r >= 50; r -= art.size * 0.96) {
+      const n = Math.floor((span * r) / spacing);
+      for (let k = 0; k < n; k++) {
+        const a = a0 + (span * (k + 0.5)) / n + (rand() - 0.5) * 0.03;
+        const rr = r + (rand() - 0.5) * 3;
+        const rot = art.spin === 'out' ? (a * 180) / Math.PI + 90 + (rand() - 0.5) * 36 : rand() * 360;
+        out += piece(Math.cos(a) * rr, Math.sin(a) * rr, rot, i++, art.draw(color));
+      }
+    }
+    return group(item, isNew, out);
+  }
+
+  function scatterMarkup(item, isNew) {
+    const art = artFor(item), color = colorFor(item), rand = rng(hash(item.id));
+    let out = '';
+    for (let i = 0; i < art.count; i++) {
+      const r = Math.sqrt(rand()) * (S - 9), a = rand() * TAU;
+      out += piece(Math.cos(a) * r, Math.sin(a) * r, rand() * 360, i, art.draw(color));
+    }
+    return group(item, isNew, out);
+  }
+
+  function drizzleMarkup(item, index, isNew) {
+    const steps = 11, reach = S * 0.9, pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const x = -reach + (i * 2 * reach) / steps;
+      const y = (i % 2 ? 1 : -1) * Math.sqrt(S * S - x * x) * 0.66;
+      pts.push([x, y]);
+    }
+    let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+    for (let i = 1; i < steps; i++) {
+      const mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      d += 'Q' + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(1) + ' ' + mx.toFixed(1) + ' ' + my.toFixed(1);
+    }
+    const line = (stroke, width, opacity) =>
+      '<path class="byb-line" pathLength="1" d="' + d + '" fill="none" stroke="' + stroke + '" stroke-width="' + width +
+      '" stroke-linecap="round" stroke-linejoin="round" opacity="' + opacity + '"/>';
+    return '<g transform="rotate(' + (24 + index * 57) + ')">' +
+      group(item, isNew, line('#000000', 5.6, 0.16) + line(colorFor(item), 4, 1) + line('#ffffff', 1.1, 0.28)) + '</g>';
+  }
+
+  function renderBowl(newIds) {
+    const base = baseItem();
+    surface.style.fill = base.color || '#4b2253';
+
+    // flecks in the base
+    const rand = rng(hash(base.id));
+    let flecks = '';
+    if (base.speckle) {
+      for (let i = 0; i < 56; i++) {
+        const r = Math.sqrt(rand()) * (S - 4), a = rand() * TAU;
+        flecks += '<circle cx="' + (Math.cos(a) * r).toFixed(1) + '" cy="' + (Math.sin(a) * r).toFixed(1) +
+          '" r="' + (0.8 + rand() * 0.9).toFixed(1) + '" fill="' + base.speckle + '" opacity="0.6"/>';
+      }
+    }
+    speckleLayer.innerHTML = flecks;
+
+    const chosen = picked(TOPPINGS, state.toppings).concat(picked(EXTRAS, state.extras));
+    const rings = chosen.filter((item) => artFor(item).layout === 'ring');
+    const scatters = chosen.filter((item) => artFor(item).layout === 'scatter');
+    const drizzles = chosen.filter((item) => artFor(item).layout === 'drizzle');
+    const isNew = (item) => !!newIds && newIds.has(item.id);
+
+    const wedge = TAU / (rings.length || 1), gap = rings.length > 1 ? 0.1 : 0;
+    toppingLayer.innerHTML =
+      rings.map((item, i) => {
+        const start = -Math.PI / 2 + i * wedge;
+        return ringMarkup(item, start + gap / 2, start + wedge - gap / 2, isNew(item));
+      }).join('') +
+      scatters.map((item) => scatterMarkup(item, isNew(item))).join('');
+    drizzleLayer.innerHTML = drizzles.map((item, i) => drizzleMarkup(item, i, isNew(item))).join('');
+  }
+
+  // Small icon for an option chip, drawn with the same art as the bowl
+  function iconMarkup(item) {
+    const art = artFor(item), color = colorFor(item);
+    let inner = '';
+    if (art.layout === 'ring') {
+      inner = art.draw(color);
+    } else if (art.layout === 'scatter') {
+      const rand = rng(hash(item.id)), n = Math.max(5, Math.min(14, Math.round(art.count / 7)));
+      for (let i = 0; i < n; i++) {
+        const r = Math.sqrt(rand()) * 9, a = rand() * TAU;
+        inner += '<g transform="translate(' + (Math.cos(a) * r).toFixed(1) + ' ' + (Math.sin(a) * r).toFixed(1) +
+          ') rotate(' + (rand() * 360).toFixed(0) + ') scale(1.25)">' + art.draw(color) + '</g>';
+      }
+    } else if (art.layout === 'drizzle') {
+      const squiggle = 'd="M-11 5C-8 -9 -5 9 -1 -2S5 9 11 -5" fill="none" stroke-linecap="round"';
+      inner = '<path ' + squiggle + ' stroke="#f6f7f1" stroke-opacity="0.4" stroke-width="5.6"/>' +
+        '<path ' + squiggle + ' stroke="' + color + '" stroke-width="3.4"/>';
+    } else {
+      inner = '<path d="M-5 0h10M0 -5v10" stroke="#f6f7f1" stroke-width="2" stroke-linecap="round"/>';
+    }
+    return '<svg viewBox="-14 -14 28 28" aria-hidden="true" focusable="false">' + inner + '</svg>';
+  }
+
+  /* ---------- building the option lists from MENU ---------- */
+  function optionEl(kind, item) {
+    const isBase = kind === 'base';
+    const label = el('label', 'byb-opt ' + (isBase ? 'byb-opt--base' : 'byb-opt--chip'));
+    const input = el('input');
+    input.type = isBase ? 'radio' : 'checkbox';
+    input.name = 'byb-' + kind;
+    input.value = item.id;
+    const body = el('span', 'byb-opt-body');
+
+    if (isBase) {
+      const swatch = el('span', 'byb-swatch');
+      swatch.style.background = item.color || '#4b2253';
+      body.append(swatch, el('span', 'byb-opt-name', item.name));
+      if (item.desc) body.append(el('span', 'byb-opt-desc', item.desc));
+      body.append(el('span', 'byb-opt-price', money(cents(item))), el('span', 'byb-tick'));
+    } else {
+      const icon = el('span', 'byb-icon');
+      icon.innerHTML = iconMarkup(item);
+      body.append(
+        icon,
+        el('span', 'byb-opt-name', item.name),
+        el('span', 'byb-opt-price', cents(item) ? '+' + money(cents(item)) : 'Included'),
+        el('span', 'byb-tick')
+      );
+    }
+    label.append(input, body);
+    return label;
+  }
+
+  function fill(containerId, kind, items) {
+    const box = $(containerId);
+    if (!items.length) { box.closest('fieldset').hidden = true; return; }
+    items.forEach((item) => box.append(optionEl(kind, item)));
+  }
+
+  /* ---------- summary: stage, ticket, totals ---------- */
+  function ticketGroup(title, rows) {
+    const frag = document.createDocumentFragment();
+    frag.append(el('p', 'menu-group-title', title));
+    const ul = el('ul');
+    rows.forEach(([name, price]) => {
+      const li = el('li', 'menu-row');
+      li.append(el('span', 'item-name', name), el('span', 'leader'), el('span', 'price', price));
+      ul.append(li);
+    });
+    frag.append(ul);
+    return frag;
+  }
+
+  function renderSummary() {
+    const base = baseItem();
+    const toppings = picked(TOPPINGS, state.toppings);
+    const extras = picked(EXTRAS, state.extras);
+    const total = [base].concat(toppings, extras).reduce((sum, item) => sum + cents(item), 0);
+    const addOn = (item) => [item.name, cents(item) ? '+' + money(cents(item)) : 'Included'];
+
+    $('bybName').textContent = base.name + ' bowl';
+    $('bybCount').textContent = toppings.length || extras.length
+      ? [toppings.length ? plural(toppings.length, 'topping') : '', extras.length ? plural(extras.length, 'extra') : '']
+          .filter(Boolean).join(' · ')
+      : 'No toppings yet';
+    $('bybTotalTop').textContent = money(total);
+    $('bybTotal').textContent = money(total);
+
+    const lines = $('bybLines');
+    lines.textContent = '';
+    lines.append(ticketGroup('Base', [[base.name, money(cents(base))]]));
+    if (toppings.length) lines.append(ticketGroup('Toppings', toppings.map(addOn)));
+    if (extras.length) lines.append(ticketGroup('Extras', extras.map(addOn)));
+    if (!toppings.length && !extras.length) {
+      lines.append(el('p', 'byb-empty', 'No toppings yet. Add some above to finish your bowl.'));
+    }
+
+    const names = toppings.concat(extras).map((item) => item.name.toLowerCase());
+    bowl.setAttribute('aria-label',
+      base.name + ' bowl' + (names.length ? ' with ' + listJoin(names) : ', no toppings yet') + '. Total ' + money(total) + '.');
+    return total;
+  }
+
+  function syncInputs() {
+    form.querySelectorAll('input').forEach((input) => {
+      if (input.name === 'byb-base') input.checked = input.value === state.base;
+      if (input.name === 'byb-toppings') input.checked = state.toppings.has(input.value);
+      if (input.name === 'byb-extras') input.checked = state.extras.has(input.value);
+    });
+  }
+
+  /* ---------- events ---------- */
+  form.addEventListener('submit', (event) => event.preventDefault());
+
+  form.addEventListener('change', (event) => {
+    const input = event.target;
+    if (!input || !input.name) return;
+    let message = '';
+    let newIds = null;
+
+    if (input.name === 'byb-base') {
+      state.base = input.value;
+      message = baseItem().name + ' base selected.';
+    } else {
+      const isTopping = input.name === 'byb-toppings';
+      const set = isTopping ? state.toppings : state.extras;
+      const item = (isTopping ? TOPPINGS : EXTRAS).find((entry) => entry.id === input.value);
+      if (!item) return;
+      if (input.checked) { set.add(item.id); newIds = new Set([item.id]); }
+      else set.delete(item.id);
+      message = item.name + (input.checked ? ' added.' : ' removed.');
+    }
+
+    renderBowl(newIds);
+    live.textContent = message + ' Total ' + money(renderSummary()) + '.';
+  });
+
+  $('bybReset').addEventListener('click', () => {
+    state.base = MENU.bases[0].id;
+    state.toppings.clear();
+    state.extras.clear();
+    syncInputs();
+    renderBowl(null);
+    live.textContent = 'Bowl reset. Total ' + money(renderSummary()) + '.';
+    const first = form.querySelector('input[name="byb-base"]:checked');
+    if (first) first.focus();
+  });
+
+  /* ---------- start ---------- */
+  if (MENU.placeholder) {
+    form.prepend(el('p', 'menu-placeholder-note', '⚠ Placeholder items & prices. The real menu goes in the MENU object in this page’s script.'));
+  }
+  fill('bybBases', 'base', MENU.bases);
+  fill('bybToppingsList', 'toppings', TOPPINGS);
+  fill('bybExtrasList', 'extras', EXTRAS);
+  syncInputs();
+  renderBowl(null);
+  renderSummary();
+})();
+
+// Scroll reveal — same pattern as index.html, inlined so it works standalone
+(function () {
+  const revealEls = document.querySelectorAll('.reveal, .reveal-scale, .reveal-group');
+  if (!revealEls.length) return;
+  if (!('IntersectionObserver' in window)) {
+    revealEls.forEach((node) => node.classList.add('is-visible'));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  revealEls.forEach((node) => observer.observe(node));
+})();
+</script>
+</body>
+</html>
