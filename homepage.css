@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+body.page-home {
+  background: #fff;
+  color: #1d1d1f;
+  font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body.page-home .site-header {
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: none;
+}
+
+body.page-home .logo {
+  font-family: Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #1f3a2e;
+}
+
+body.page-home nav.main-nav a {
+  font-family: Roboto, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #1d1d1f;
+  border-bottom: none;
+  padding: 0;
+}
+
+body.page-home nav.main-nav a:hover { color: #6e6e73; }
+body.page-home nav.main-nav a.active { color: #1d1d1f; border: none; }
+
+body.page-home .btn-order {
+  background: #fcaf3d;
+  color: #1d1d1f !important;
+  font-family: Roboto, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  border-radius: 980px;
+  padding: 8px 16px;
+}
+
+body.page-home .btn-order:hover { background: #f0b429; }
+
+.home-hero {
+  min-height: calc(100vh - 78px - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 28px 64px;
+}
+
+.home-logo {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  margin: 0 auto 28px;
+}
+
+.home-hero h1 {
+  margin: 0 auto 16px;
+  max-width: 12ch;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: clamp(3.2rem, 8vw, 5.6rem);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  color: #1d1d1f;
+}
+
+.home-hero p {
+  margin: 0 auto 28px;
+  max-width: 28ch;
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  color: #6e6e73;
+}
+
+.home-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fcaf3d;
+  color: #1d1d1f;
+  font-family: Roboto, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  border-radius: 980px;
+  padding: 14px 28px;
+}
+
+.home-cta:hover { background: #f0b429; }
+
+body.page-home footer.site-footer {
+  background: #fff;
+  color: #6e6e73;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 28px 0 36px;
+}
+
+body.page-home footer.site-footer .logo {
+  color: #1f3a2e;
+  font-size: 1rem;
+}
+
+body.page-home .foot-links {
+  font-family: Roboto, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: none;
+  gap: 18px;
+}
+
+body.page-home .foot-links a:hover { color: #1d1d1f; }
+
+body.page-home .foot-bottom {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #86868b;
+}
+
+@media (max-width: 860px) {
+  body.page-home .site-header.nav-open nav.main-nav {
+    background: #fff;
+    align-items: center;
+  }
+  body.page-home footer.site-footer .wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+  .home-hero { min-height: calc(100vh - 78px - 180px); }
+}
