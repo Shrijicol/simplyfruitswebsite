@@ -49,12 +49,11 @@ body.page-home .btn-order {
 body.page-home .btn-order:hover { background: #f0b429; }
 
 .home-hero {
-  min-height: calc(100vh - 78px - 120px);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 80px 28px 64px;
+  padding: 72px 28px 36px;
 }
 
 .home-logo {
@@ -76,29 +75,47 @@ body.page-home .btn-order:hover { background: #f0b429; }
 }
 
 .home-hero p {
-  margin: 0 auto 28px;
-  max-width: 28ch;
+  margin: 0 auto;
+  max-width: 22ch;
   font-size: clamp(1.15rem, 2vw, 1.45rem);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.35;
-  letter-spacing: -0.015em;
-  color: #6e6e73;
+  letter-spacing: 0.04em;
+  color: #000;
 }
 
-.home-cta {
-  display: inline-flex;
+.home-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.home-tile {
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: #fcaf3d;
-  color: #1d1d1f;
-  font-family: Roboto, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 500;
-  border-radius: 980px;
-  padding: 14px 28px;
+  min-height: 280px;
+  padding: 32px 24px;
+  text-align: center;
+  border-radius: 0;
 }
 
-.home-cta:hover { background: #f0b429; }
+.home-tile-label {
+  background: #1d1d1f;
+  color: #fff;
+  font-family: Roboto, sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.home-tile-label:hover { background: #000; }
+
+.home-tile-blank {
+  background: #f5f5f7;
+}
 
 body.page-home footer.site-footer {
   background: #fff;
@@ -139,5 +156,6 @@ body.page-home .foot-bottom {
     justify-items: center;
     text-align: center;
   }
-  .home-hero { min-height: calc(100vh - 78px - 180px); }
+  .home-tiles { grid-template-columns: 1fr; }
+  .home-tile { min-height: 220px; }
 }
