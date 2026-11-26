@@ -164,20 +164,26 @@ body.page-home .btn-order:hover { background: #f0b429; }
   position: relative;
   width: 100%;
   min-height: 640px;
-  justify-content: flex-end;
+  justify-content: space-between;
   overflow: hidden;
   background: #000;
   color: #fff;
   padding: 48px 28px 52px;
 }
 
+.home-band-toasties h2 {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
 .home-band-toasties .home-band-photo {
   position: absolute;
   left: 50%;
-  top: 8%;
+  top: 18%;
   width: min(78%, 640px);
   max-width: none;
-  max-height: 78%;
+  max-height: 58%;
   height: auto;
   transform: translateX(-50%);
   object-fit: contain;
