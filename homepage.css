@@ -161,9 +161,49 @@ body.page-home .btn-order:hover { background: #f0b429; }
 }
 
 .home-band-toasties {
+  position: relative;
   width: 100%;
+  min-height: 640px;
+  justify-content: flex-end;
+  overflow: hidden;
   background: #000;
   color: #fff;
+  padding: 48px 28px 52px;
+}
+
+.home-band-toasties .home-band-photo {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: min(78%, 640px);
+  max-width: none;
+  max-height: 78%;
+  height: auto;
+  transform: translateX(-50%);
+  object-fit: contain;
+  opacity: 0.72;
+  margin: 0;
+  pointer-events: none;
+}
+
+.home-band-toasties::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.15) 42%, rgba(0, 0, 0, 0.94) 78%);
+  pointer-events: none;
+}
+
+.home-band-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-band-toasties .home-product-actions {
+  margin-bottom: 0;
 }
 
 .home-band .home-product-actions {
